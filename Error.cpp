@@ -51,8 +51,9 @@ void Message(const char *format, ...)
 void VError(const char *format, va_list args)
 {
     char errorFormat[kFormatStringLength];
+    const char errmsg[] = ";;; Error!  %s";
 
-    sprintf(errorFormat, ";;; Error!  %s", format);
+    snprintf(errorFormat,kFormatStringLength - sizeof(errmsg), errmsg, format);
     vfprintf(StandardError, errorFormat, args);
 }
 

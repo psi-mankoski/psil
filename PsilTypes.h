@@ -41,6 +41,7 @@ const char  kAtSign      = '@';
 const char  kComma       = ',';
 const char  kSlash       = '/';
 const char  kBackSlash   = '\\';
+const char  kColon       = ':';
 
 const int   kMaxTokenLen = 256;
 
@@ -123,6 +124,14 @@ typedef struct Form {
     } value;
     PsilType type;
 } Form;
+
+typedef bool (CmdFunc)(void);
+
+typedef struct PsilCommand {
+    const char *name;
+    CmdFunc    *func;
+    const char *doc;
+} Command;
 
 
 #endif // !defined(PsilTypes_h)

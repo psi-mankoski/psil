@@ -62,6 +62,11 @@ Form *SymbolDEFINE;
 // Has an EOF character been read?
 bool ReadEOF = false;
 
+// Recursive read level.
+// Level 0 is "top level" where commands are available.
+int ReadLevel = 0;
+
+
 // Define functions.
 
 
@@ -241,14 +246,16 @@ char ReadToken(FILE *instream, char *token)
     token[index++] = c;
 
     // Return token if we have it all now.
-    if ((c == kLeftParen) || (c == kRightParen) || (c == kQuote)) {
+    if ((c == kLeftParen) || (c == kRightParen) || (c == kQuote)
+        || (c == kBackQuote) || (c == kAtSign) || (c == kColon)) {
         token[index] = '\0';
         return c;
     }
 
     while (((c = ReadChar(instream)) != EOF) && (c != kSpace) && (c != kTab)
            && (c != kReturn) && (c != kNewline) && (c != kLeftParen)
-           && (c != kRightParen) && (c != kQuote))
+           && (c != kRightParen) && (c != kQuote)
+           && (c != kBackQuote) && (c != kAtSign) && (c != kColon))
       token[index++] = c;
 
     // Push the last character back on the input stream.
@@ -284,6 +291,7 @@ Form *ReadAtom(const char *token)
 Form *ReadList(FILE *instream)
 {
     char token[kMaxTokenLen], c;
+    ReadLevel++;
 
     c = ReadToken(instream, token);
 
@@ -291,12 +299,14 @@ Form *ReadList(FILE *instream)
 
     if (c == EOF) {
         Error("ReadList():  EOF within list!\n");
+        ReadLevel = 0;
         return SymbolNIL;
     } else if (c == kQuote) {
         DPrintf("ReadList():  Encountered quote.\n");
         // N.B.:  Need to read before consing to guarantee proper ordering.
         Form *x = Read(instream);
         Form *y = ReadList(instream);
+        ReadLevel--;
         return Cons(Cons(SymbolQUOTE, Cons(x, SymbolNIL)), y);
     } else if (c == kLeftParen) {
         DPrintf("Sublist ReadList()...\n");
@@ -304,14 +314,18 @@ Form *ReadList(FILE *instream)
         // N.B.:  Need to read before consing to guarantee proper ordering.
         Form *x = ReadList(instream);
         Form *y = ReadList(instream);
+        ReadLevel--;
         return Cons(x, y);
     } else if (c == kRightParen) {
         DPrintf("Endlist ReadList()...\n");
         // End the current list.
+        ReadLevel--;
         return SymbolNIL;
     } else {
         DPrintf("Recursive ReadList()...\n");
-        return Cons(ReadAtom(token), ReadList(instream));
+        Form *result = Cons(ReadAtom(token), ReadList(instream));
+        ReadLevel--;
+        return result;
     }
 }
 
@@ -341,6 +355,24 @@ Form *Read(FILE *instream)
         // XXX -- Need to handle error conditions better than this.
         Error("Read():  Read ')' outside of list!\n");
         return SymbolNIL;
+    } else if (c == kBackQuote) {
+        DPrintf("Read():  Encountered backquote.\n");
+        // XXX -- Treat the same as quote for now.
+        return Cons(SymbolQUOTE, Cons(Read(instream), SymbolNIL));
+    } else if (c == kAtSign) {
+        DPrintf("Read():  Encountered atsign.\n");
+        Error("Read():  Read '@' -- Not yet supported!\n");
+        return SymbolNIL;
+    } else if (c == kColon) {
+        DPrintf("Read():  Encountered colon.\n");
+        if (ReadLevel == 0) {
+            return DoCommand(ReadCommand(instream)) ? SymbolT : SymbolNIL;
+        } else {
+            // Handle colon as a normal symbol character.
+            // XXX -- TBD.
+            Error("Read():  Read ':' not at top level (%d) ~~ Not yet supported!\n", ReadLevel);
+            return SymbolNIL;
+        }
     } else
       return ReadAtom(token);
 }

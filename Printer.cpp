@@ -59,7 +59,7 @@ int Print(Form *form, FILE *outstream)
             lambdaBody = Cdr(lambdaBody);
         }
         fprintf(outstream, ") ");
-        PrintEnvironment(LambdaEnvironment(form), outstream);
+        PrintEnvironment(LambdaEnvironment(form), outstream, TraceEnvironment);
         fprintf(outstream, ">");
     } else if (IsCons(form)) {
         fprintf(outstream, "(");

@@ -28,7 +28,7 @@ struct Environment {
 };
 
 
-// Define global variables
+// Define global variables.
 
 
 static PsilFunc PrimitiveFuncs[] =
@@ -191,19 +191,21 @@ Environment *Unbind(Environment *env)
     }
 }
 
-void PrintEnvironment(Environment *env, FILE *outstream)
+void PrintEnvironment(Environment *env, FILE *outstream, bool verbose)
 {
     if (env) {
-        fprintf(outstream, "#<ENV");
+        fprintf(outstream, "#<ENV %p", env);
         if (TraceEnvironment) {
             if (env == TopLevelEnv)
               fprintf(outstream, ": TOP-LEVEL");
-            else {
-                fprintf(outstream, ": [\"%s\", ", env->name);
-                Print(env->value, outstream);
-                fprintf(outstream, "] ");
-                PrintEnvironment(env->parent, outstream);
-            }
+            else if (env == CurrentEnv)
+              fprintf(outstream, ": CURRENT");
+        }
+        if (verbose) {
+            fprintf(outstream, ": [\"%s\", ", env->name);
+            Print(env->value, outstream);
+            fprintf(outstream, "] ");
+            PrintEnvironment(env->parent, outstream, verbose);
         }
         fprintf(outstream, ">");
     }

@@ -33,7 +33,7 @@ Environment *BindArgs(Form *arglist, Form *args, Environment *env)
         fprintf(StandardError, ", ");
         Print(args, StandardError);
         fprintf(StandardError, ", ");
-        PrintEnvironment(env, StandardError);
+        PrintEnvironment(env, StandardError, TraceEnvironment);
         fprintf(StandardError, ")\n");
     }
 
@@ -71,7 +71,7 @@ bool EvalArgs(Form *args, Environment *env)
         fprintf(StandardError, "EVAL: EvalArgs(");
         Print(args, StandardError);
         fprintf(StandardError, ", ");
-        PrintEnvironment(env, StandardError);
+        PrintEnvironment(env, StandardError, TraceEnvironment);
         fprintf(StandardError, ")\n");
     }
 
@@ -95,7 +95,7 @@ Form *EvalBody(Form *forms, Environment *env)
         fprintf(StandardError, "EVAL: EvalBody(");
         Print(forms, StandardError);
         fprintf(StandardError, ", ");
-        PrintEnvironment(env, StandardError);
+        PrintEnvironment(env, StandardError, TraceEnvironment);
         fprintf(StandardError, ")\n");
     }
 
@@ -119,7 +119,7 @@ Form *Eval(Form *form, Environment *env)
         fprintf(StandardError, "EVAL: Eval(");
         Print(form, StandardError);
         fprintf(StandardError, ", ");
-        PrintEnvironment(env, StandardError);
+        PrintEnvironment(env, StandardError, TraceEnvironment);
         fprintf(StandardError, ")\n");
     }
 
@@ -166,7 +166,7 @@ Form *Apply(Form *func, Form *args, Environment *env)
         fprintf(StandardError, ", ");
         Print(args, StandardError);
         fprintf(StandardError, ", ");
-        PrintEnvironment(env, StandardError);
+        PrintEnvironment(env, StandardError, TraceEnvironment);
         fprintf(StandardError, ")\n");
     }
 

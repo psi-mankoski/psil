@@ -17,6 +17,8 @@ SRCDIR = .
 OBJDIR = .
 BINDIR = .
 
+DEBUG = 0
+
 ifeq ($(PLAT),iPAQ)
 
 CC = agcc
@@ -25,13 +27,13 @@ AR = aar
 RANLIB = aranlib
 LD = ald
 
-#CFLAGS = -Wall -g -DDEBUG=1 -fPIC -fsigned-char -mcpu=strongarm -O3 -DiPAQ
-CFLAGS = -Wall -DDEBUG=0 -fomit-frame-pointer -fPIC -fsigned-char -mcpu=strongarm -O3 -DiPAQ
+#CFLAGS = -Wall -g -DDEBUG=$(DEBUG) -fPIC -fsigned-char -mcpu=strongarm -O3 -DiPAQ
+CFLAGS = -Wall -DDEBUG=$(DEBUG) -fomit-frame-pointer -fPIC -fsigned-char -mcpu=strongarm -O3 -DiPAQ
 
 else
 
-BASE_CFLAGS = -Wall -g -DDEBUG=0
-#BASE_CFLAGS = -Wall -g -DDEBUG=1 -DFLONUM_IS_DOUBLE
+BASE_CFLAGS = -Wall -g -DDEBUG=$(DEBUG)
+#BASE_CFLAGS = -Wall -g -DDEBUG=$(DEBUG) -DFLONUM_IS_DOUBLE
 CFLAGS = $(BASE_CFLAGS) -O3
 
 endif
@@ -41,7 +43,8 @@ CXXFLAGS = $(CFLAGS)
 HEADERS = $(SRCDIR)/Psil.h \
 	  $(SRCDIR)/PsilTypes.h
 
-SOURCES = $(SRCDIR)/Environment.cpp \
+SOURCES = $(SRCDIR)/Command.cpp \
+	  $(SRCDIR)/Environment.cpp \
 	  $(SRCDIR)/Error.cpp \
 	  $(SRCDIR)/Evaluator.cpp \
 	  $(SRCDIR)/Primitives.cpp \

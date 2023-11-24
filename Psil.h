@@ -60,6 +60,7 @@ extern bool     IsInteractive;
 extern bool     InterpreterRunning;
 
 extern bool ReadEOF;
+extern int  ReadLevel;
 
 
 // Define function prototypes.
@@ -86,6 +87,13 @@ Form *Push(Form *form);
 Form *Pop(void);
 
 
+// Command functions:
+
+
+bool  DoCommand(char *cmd);
+char *ReadCommand(FILE *instream);
+
+
 // Environment functions:
 
 
@@ -96,7 +104,7 @@ Environment *LookupBinding(const char *name, Environment *env);
 Environment *Bind(const char *name, Form *value, Environment *env);
 Environment *SetBinding(const char *name, Form *value, Environment *env);
 Environment *Unbind(Environment *env);
-void         PrintEnvironment(Environment *env, FILE *outstream);
+void         PrintEnvironment(Environment *env, FILE *outstream, bool verbose);
 
 
 // Reader functions:
