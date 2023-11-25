@@ -77,6 +77,12 @@ clean:
 cleanest:	clean
 	$(RM) $(PROGRAMS)
 
+pdf:
+	enscript -2Grh README.md Makefile *.h *.cpp -o - | ps2pdf - > Psil.`date +%d%h%y | sed "s/^0//"`.pdf
+
+tags:
+	etags $(SOURCES) $(SOURCES)
+
 # (Only needed for old GNU "make" versions.)
 %.o:	%.cpp
 	$(COMPILE.cc) -o $@ $<

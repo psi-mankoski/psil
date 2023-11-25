@@ -46,6 +46,15 @@ Tracing of various phases of the interpreter may be toggled using the
 function `(trace <Type>)` where `<Type>` may be one of
 `{"environment", "evaluator", "primitives", "stack", "all", "none"}`.
 
+## Commands
+
+Commands are available at the top level and are proceeded by a colon (':'.)
+
+| Command | Documentation |
+|---------|---------------|
+| HELP    | Print help for Psil commands. |
+| ENV     | Print main Psil environments. |
+
 ## Files
 
 `Makefile` - GNU Makefile for Psil.
@@ -55,6 +64,8 @@ function `(trace <Type>)` where `<Type>` may be one of
 `PsilTypes.h` - Declare the primitive types implementing the Psil interpreter.
 
 `Psil.cpp` - Psil main program.  Implements top-level Read-Eval-Print loop.
+
+`Command.cpp` - Implement top-level (colon) commands.
 
 `Environment.cpp` - Implements "a-list"-style environments.
 
