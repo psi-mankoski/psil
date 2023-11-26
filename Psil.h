@@ -90,8 +90,8 @@ Form *Pop(void);
 // Command functions:
 
 
-bool  DoCommand(char *cmd);
-char *ReadCommand(FILE *instream);
+bool  DoCommand(char *cmd_line);
+char *ReadCommand(FILE *instream, char *cmd_line);
 
 
 // Environment functions:

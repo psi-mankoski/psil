@@ -4,7 +4,10 @@
     Date:   Wed Nov 22 21:14:34 2023
 
     Description:
+       Provide support for top level ("colon") commands.
 
+       Commands are introduced via the colon (':') character and pass the whole line to the command function.
+       The function is selected by the first whitespace-delimited token, case-independently.
 */
 
 
@@ -19,8 +22,8 @@
 // Forward references.
 
 
-bool CmdHelp();
-bool CmdEnv();
+bool CmdHelp(char *cmd_line);
+bool CmdEnv(char *cmd_line);
 
 
 // Define global variables.
@@ -37,43 +40,44 @@ static PsilCommand Commands[] =
 // Define functions.
 
 
-bool DoCommand(char *cmdstr)
+bool DoCommand(char *cmd_line)
 {
     PsilCommand *cmd = Commands;
+
+    DPrintf("DoCommand(): Command line = \"%s\"\n", cmd_line);
+
     while (cmd->name != NULL) {
-        if (!strcmp(cmd->name, cmdstr)) {
-            return cmd->func();
+        if (!strncmp(cmd->name, cmd_line, strlen(cmd->name))) {
+            return cmd->func(cmd_line);
         }
         cmd++;
     }
-    Error("Unknown command: \"%s\"!\n", cmdstr);
+    Error("Unknown command: \"%s\"!\n", cmd_line);
     return false;
 }
 
-char *ReadCommand(FILE *instream)
+char *ReadCommand(FILE *instream, char *cmd_line)
 {
-    // Note:  Not re-entrant!
-    static char cmd[kMaxTokenLen];
     char c;
     int index = 0;
 
-    cmd[index] = '\0';
+    cmd_line[index] = '\0';
 
-    while (((c = fgetc(instream)) != EOF)
-           && ((c != kSpace) && (c != kTab) && (c != kReturn) && (c != kNewline)))
-      cmd[index++] = c;
+    while (((c = fgetc(instream)) != EOF) && (index < kMaxTokenLen)
+           && (c != kReturn) && (c != kNewline))
+      cmd_line[index++] = c;
+    cmd_line[index] = '\0';
 
-    cmd[index] = '\0';
-    char *chr = cmd;
-    while (*chr) {
+    char *chr = cmd_line;
+    while (*chr && (*chr != kSpace) && (*chr != kTab)) {
         *chr = toupper(*chr);
         chr++;
     }
 
-    return cmd;
+    return cmd_line;
 }
 
-bool CmdHelp()
+bool CmdHelp(char *cmd_line)
 {
     PsilCommand *cmd = Commands;
     Message("Psil Commands:\n");
@@ -88,7 +92,7 @@ bool CmdHelp()
     return true;
 }
 
-bool CmdEnv()
+bool CmdEnv(char *cmd_line)
 {
     Message("Psil Environment:\n");
     Message("TopLevelEnv:\n");

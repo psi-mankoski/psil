@@ -125,7 +125,7 @@ typedef struct Form {
     PsilType type;
 } Form;
 
-typedef bool (CmdFunc)(void);
+typedef bool (CmdFunc)(char *cmd_line);
 
 typedef struct PsilCommand {
     const char *name;

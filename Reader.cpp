@@ -366,7 +366,8 @@ Form *Read(FILE *instream)
     } else if (c == kColon) {
         DPrintf("Read():  Encountered colon.\n");
         if (ReadLevel == 0) {
-            return DoCommand(ReadCommand(instream)) ? SymbolT : SymbolNIL;
+            char cmd_line[kMaxTokenLen];
+            return DoCommand(ReadCommand(instream, cmd_line)) ? SymbolT : SymbolNIL;
         } else {
             // Handle colon as a normal symbol character.
             // XXX -- TBD.
