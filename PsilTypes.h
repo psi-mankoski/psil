@@ -49,11 +49,11 @@ const int   kMaxTokenLen = 256;
 // Define types.
 
 
-typedef int boolean;
-
 typedef struct Environment Environment;
 
 typedef enum PsilType {
+    kPsilNull,
+    kPsilBoolean,
     kPsilSymbol,
     kPsilInteger,
     kPsilFlonum,

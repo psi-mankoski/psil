@@ -2,7 +2,7 @@
 (car l)
 (cdr l)
 (cons 'a 'b)
-(* 1 2 3 4)
+(* 1 (* 2 (* 3 4)))
 (set 'pi 3.1415927)
 (set 'pi/2 (/ pi 2))
 (set 'pi/4 (/ pi 4))

@@ -149,6 +149,9 @@ bool IsIf(Form *form);
 bool IsAssignment(Form *form);
 bool IsDefinition(Form *form);
 
+const char *TypeOf(Form *form);
+int Length(Form *list);
+
 const char  *SymbolName(Form *form);
 int          IntegerValue(Form *form);
 double       FlonumValue(Form *form);
@@ -199,6 +202,9 @@ Form *FuncCons(void);
 Form *FuncAtom(void);
 Form *FuncEq(void);
 Form *FuncNull(void);
+Form *FuncLength(void);
+Form *FuncTypeOf(void);
+Form *FuncSymbolp(void);
 Form *FuncNumberp(void);
 Form *FuncZerop(void);
 Form *FuncNumberEqual(void);

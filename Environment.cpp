@@ -40,6 +40,9 @@ static PsilFunc PrimitiveFuncs[] =
     {"EQ",         FuncEq,             2},
     {"NULL",       FuncNull,           1},
     {"NOT",        FuncNull,           1},
+    {"SYMBOLP",    FuncSymbolp,        1},
+    {"LENGTH",     FuncLength,         1},
+    {"TYPE-OF",    FuncTypeOf,         1},
     {"NUMBERP",    FuncNumberp,        1},
     {"ZEROP",      FuncZerop,          1},
     {"=",          FuncNumberEqual,    2},
@@ -160,6 +163,10 @@ Environment *Bind(const char *name, Form *value, Environment *env)
     if (!newEnv)
       ErrorOut("Bind():  CreateEnvironment() failed!\n");
 
+    if (TraceEvaluator) {
+        fprintf(StandardError, "\tBind: %s\n", name);
+    }
+
     newEnv->name = name;
     newEnv->value = value;
     newEnv->parent = env;
@@ -186,7 +193,13 @@ Environment *Unbind(Environment *env)
       return NULL;
     else {
         parentEnv = env->parent;
+
+        if (TraceEvaluator) {
+            fprintf(StandardError, "\tUnbind: %s\n", env->name);
+        }
+
         DestroyEnvironment(env);
+
         return parentEnv;
     }
 }

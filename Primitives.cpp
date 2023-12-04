@@ -116,6 +116,56 @@ bool IsDefinition(Form *form)
     return (Car(form) == SymbolDEFINE) && IsSymbol(Cadr(form));
 }
 
+const char *TypeOf(Form *form)
+{
+    const char *type_str;
+
+    switch (form->type) {
+      case kPsilNull:
+          type_str = "NULL";
+          break;
+      case kPsilBoolean:
+          type_str = "BOOLEAN";
+          break;
+      case kPsilSymbol:
+          type_str = "SYMBOL";
+          break;
+      case kPsilInteger:
+          type_str = "FIXNUM";
+          break;
+      case kPsilFlonum:
+          type_str = "FLONUM";
+          break;
+      case kPsilString:
+          type_str = "STRING";
+          break;
+      case kPsilCons:
+          type_str = "CONS";
+          break;
+      case kPsilFunc:
+          type_str = "FUNC";
+          break;
+      case kPsilLambda:
+          type_str = "CLOSURE";
+          break;
+      default:
+          type_str = "UNKNOWN";
+    }
+
+    return type_str;
+}
+
+int Length(Form *list)
+{
+    if (IsNull(list))
+      return 0;
+    else if (IsAtom(list)) {
+        ErrorForm("Length():  Non-list type: %s\n", TypeOf(list));
+        return 0;
+    } else
+      return 1 + Length(Cdr(list));
+}
+
 const char *SymbolName(Form *form)
 {
     return form ? form->value.symbol->pname : "";
@@ -353,6 +403,10 @@ Form *MakeClosure(Form *arglist, Form *body, Environment *env)
 {
     Form *form;
 
+    if (TraceEvaluator) {
+        fprintf(StandardError, "\tMakeClosure()\n");
+    }
+
     if ((form = AllocateForm()) == NULL)
       return ErrorForm("MakeClosure():  AllocateForm() failed!\n");
 
@@ -384,10 +438,15 @@ Form *Cons(Form *car, Form *cdr)
     return form;
 }
 
+Form *Symbolp(Form *x)
+{
+    return IsSymbol(x) ? SymbolT : SymbolNIL;
+}
+
 Form *Zerop(Form *x)
 {
     if (!IsNumber(x))
-      return ErrorForm("Zerop():  Non-numeric argument(s)!\n");
+      return ErrorForm("Zerop():  Non-numeric argument!\n");
 
     return NumberValue(x) == 0.0 ? SymbolT : SymbolNIL;
 }
@@ -659,16 +718,43 @@ Form *FuncNull(void)
 {
     Form *x = Pop();
 
-    TRACE_PRIM("IsNull");
+    TRACE_PRIM("Null");
 
     return IsNull(x) ? SymbolT : SymbolNIL;
+}
+
+Form *FuncLength(void)
+{
+    Form *x = Pop();
+
+    TRACE_PRIM("Length");
+
+    return MakeNumber(Length(x));
+}
+
+Form *FuncTypeOf(void)
+{
+    Form *x = Pop();
+
+    TRACE_PRIM("TypeOf");
+
+    return MakeSymbol(TypeOf(x));
+}
+
+Form *FuncSymbolp(void)
+{
+    Form *x = Pop();
+
+    TRACE_PRIM("Symbolp");
+
+    return Symbolp(x);
 }
 
 Form *FuncNumberp(void)
 {
     Form *x = Pop();
 
-    TRACE_PRIM("IsNumber");
+    TRACE_PRIM("Numberp");
 
     return IsNumber(x) ? SymbolT : SymbolNIL;
 }

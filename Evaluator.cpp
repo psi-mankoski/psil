@@ -28,7 +28,7 @@ bool TraceEvaluator = false;
 Environment *BindArgs(Form *arglist, Form *args, Environment *env)
 {
     if (TraceEvaluator) {
-        fprintf(StandardError, "EVAL: BindArgs(");
+        fprintf(StandardError, "EVAL:  BindArgs(");
         Print(arglist, StandardError);
         fprintf(StandardError, ", ");
         Print(args, StandardError);
@@ -68,7 +68,7 @@ Environment *BindArgs(Form *arglist, Form *args, Environment *env)
 bool EvalArgs(Form *args, Environment *env)
 {
     if (TraceEvaluator) {
-        fprintf(StandardError, "EVAL: EvalArgs(");
+        fprintf(StandardError, "EVAL:  EvalArgs(");
         Print(args, StandardError);
         fprintf(StandardError, ", ");
         PrintEnvironment(env, StandardError, TraceEnvironment);
@@ -92,7 +92,7 @@ Form *EvalBody(Form *forms, Environment *env)
     Form *retval, *head, *tail;
 
     if (TraceEvaluator) {
-        fprintf(StandardError, "EVAL: EvalBody(");
+        fprintf(StandardError, "EVAL:  EvalBody(");
         Print(forms, StandardError);
         fprintf(StandardError, ", ");
         PrintEnvironment(env, StandardError, TraceEnvironment);
@@ -116,7 +116,7 @@ Form *EvalBody(Form *forms, Environment *env)
 Form *Eval(Form *form, Environment *env)
 {
     if (TraceEvaluator) {
-        fprintf(StandardError, "EVAL: Eval(");
+        fprintf(StandardError, "EVAL:  Eval(");
         Print(form, StandardError);
         fprintf(StandardError, ", ");
         PrintEnvironment(env, StandardError, TraceEnvironment);
@@ -161,7 +161,7 @@ Form *Apply(Form *func, Form *args, Environment *env)
     Form *retval;
 
     if (TraceEvaluator) {
-        fprintf(StandardError, "EVAL: Apply(");
+        fprintf(StandardError, "EVAL:  Apply(");
         Print(func, StandardError);
         fprintf(StandardError, ", ");
         Print(args, StandardError);
@@ -172,6 +172,9 @@ Form *Apply(Form *func, Form *args, Environment *env)
 
     if (IsFunc(func)) {
         PsilFunc *pfunc = FuncValue(func);
+        int nargs = Length(args);
+        if (nargs != pfunc->nargs)
+          return ErrorForm("Apply():  Incorrect number of arguments to function \"%s\": Supplied: %d; Expected: %d\n", pfunc->name, nargs, pfunc->nargs);
         if (!EvalArgs(args, env))
           return ErrorForm("Apply():  EvalArgs() failed!\n");
         else
@@ -182,10 +185,16 @@ Form *Apply(Form *func, Form *args, Environment *env)
         Environment *lexicalEnv = LambdaEnvironment(func);
         Environment *origEnv = env;
         CurrentEnv = env;
+        if (TraceEvaluator) {
+            fprintf(StandardError, "\tIsClosure() ==> true\n");
+        }
         retval = EvalBody(body, CurrentEnv = BindArgs(arglist, args, lexicalEnv));
         CurrentEnv = origEnv;
         return retval;
     } else if (IsLambdaForm(func)) {
+        if (TraceEvaluator) {
+            fprintf(StandardError, "\tIsLambdaForm() ==> true\n");
+        }
         Form *arglist = Cadr(func);
         Form *body = Cddr(func);
         Environment *origEnv = env;
@@ -195,8 +204,14 @@ Form *Apply(Form *func, Form *args, Environment *env)
           CurrentEnv = Unbind(CurrentEnv);
         return retval;
     } else if (IsCons(func)) {
+        if (TraceEvaluator) {
+            fprintf(StandardError, "\tIsCons() ==> true\n");
+        }
         return Apply(Eval(func, env), args, env);
     } else if (IsSymbol(func)) {
+        if (TraceEvaluator) {
+            fprintf(StandardError, "\tIsSymbol() ==> true\n");
+        }
         Form *symbolValue = Lookup(SymbolName(func), env);
         if (symbolValue != SymbolNIL)
           return Apply(symbolValue, args, env);
