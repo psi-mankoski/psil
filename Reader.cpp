@@ -212,14 +212,20 @@ char ReadChar(FILE *instream)
  StartOver:
     ReadEOF = ((c = fgetc(instream)) == EOF);
 
+    // Suspending and resuming the process (e.g., on macOS) isn't really EOF.
+    if (ferror(instream) && !feof(instream)) {
+        clearerr(instream);
+        goto StartOver;
+    }
+
     // If a comment character is found, read it until the next newline.
     if (c == kCommentChar) {
         while (((c = fgetc(instream)) != '\n') && (c != EOF))
           ;
-        if (c == EOF)
-          return c;
-        else
+        if (c != EOF)
           goto StartOver;
+        else
+          ReadEOF = true;
     }
 
     return c;
